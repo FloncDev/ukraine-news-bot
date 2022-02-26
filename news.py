@@ -6,21 +6,23 @@ from typing import Union
 
 console = Console(True)
 
-url = "https://push.api.bbci.co.uk/batch?t=%2Fdata%2Fbbc-morph-%7Blx-page-component-data%2F_mrrVersion%2F2.2.1%2FassetUri%2Fnews%252Flive%252Fworld-europe-60517447%2FisUk%2Ffalse%2FlayoutName%2Fdefault%2FpageNumber%2F1%2FserviceName%2Fnews%2Ftheme%2Fnews%2Fversion%2F15.6.0%2Clx-sign-in-data%2FassetUri%2Fnews%252Flive%252Fworld-europe-60517447%2Fversion%2F5.0.1%2Cfeature-toggle-manager%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FfeatureToggle%2Flx-live-guide-active-viewer%2Fproject%2Fbbc-live%2Fversion%2F1.0.3%2Cfeature-toggle-manager%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FfeatureToggle%2Flx-native-sign-in%2Fproject%2Fbbc-live%2Fversion%2F1.0.3%2Cfeature-toggle-manager%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FfeatureToggle%2Flx-related-sessions%2Fproject%2Fbbc-live%2Fversion%2F1.0.3%2Clx-heartbeat-count%2FassetId%2F60517447%2Fversion%2F2.1.2%2Cfeature-toggle-manager%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FfeatureToggle%2Flx-debate-banner%2Fproject%2Fbbc-live%2Fversion%2F1.0.3%2Clx-page-commentary-meta%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FisUk%2Ffalse%2Fversion%2F1.1.2%2Cfeature-toggle-manager%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FfeatureToggle%2Freactions-stream-v4%2Fproject%2Fbbc-live%2Fversion%2F1.0.3%2Cfeature-toggle-manager%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FfeatureToggle%2Fanimated-stream%2Fproject%2Fbbc-live%2Fversion%2F1.0.3%2Cfeature-toggle-manager%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FfeatureToggle%2Fmlfl-breaking-news%2Fproject%2Fbbc-live%2Fversion%2F1.0.3%2Clx-commentary-data-paged%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FisUk%2Ffalse%2Flimit%2F20%2FnitroKey%2Flx-nitro%2FpageNumber%2F1%2FserviceName%2Fnews%2Fversion%2F1.5.6%2Clx-cps-more-from-data%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FisUk%2Ffalse%2Fversion%2F2.2.3%2Clx-commentary-data-paged%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FisUk%2Ffalse%2Flimit%2F20%2FnitroKey%2Flx-nitro%2FpageNumber%2F2%2FserviceName%2Fnews%2Fversion%2F1.5.6%2Clx-commentary-data-paged%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FisUk%2Ffalse%2Flimit%2F20%2FnitroKey%2Flx-nitro%2FpageNumber%2F8%2FserviceName%2Fnews%2Fversion%2F1.5.6%7D?timeout=5"
+url = "https://push.api.bbci.co.uk/batch?t=%2Fdata%2Fbbc-morph-lx-commentary-data-paged%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FisUk%2Ffalse%2Flimit%2F20%2FnitroKey%2Flx-nitro%2FpageNumber%2F1%2FserviceName%2Fnews%2Fversion%2F1.5.6?timeout=5"
 
 with open("latest", "r+") as f:
     latest_id = f.read()
 
 async def get_data() -> Union[dict, None]:
+    console.log("Getting data...")
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
             data = await resp.json()
             global latest_id
 
-            latest = data["payload"][11]["body"]["results"][0]
+            latest = data["payload"][0]["body"]["results"][0]
 
-            # for i in data["payload"][11]["body"]["results"]:
-            #     if i["assetId"] == "62197e41980bea49f4b7a024":
+            # This is just in case they post a new update while im still working on adding a new datatype
+            # for i in data["payload"][0]["body"]["results"]:
+            #     if i["assetId"] == "621a4f7c0ce87e491a0ed2fa":
             #         latest = i
 
             if latest["assetId"] == latest_id:
@@ -44,6 +46,10 @@ async def get_data() -> Union[dict, None]:
             except: image_url = None
 
             # Content
+            # TODO: Remake this to be more readable and less code re-write
+            # It seems that every data type supports every other data type
+            # -------
+            # Right now it loops through every known data type and adds what is needed.
             for item in latest["body"]:
 
                 if item["name"] == "paragraph":
@@ -55,15 +61,39 @@ async def get_data() -> Union[dict, None]:
                             if child["name"] == "text":
                                 content += child["text"].replace("\n\n", " ")
 
-                            if child["name"] == "link":
+                            elif child["name"] == "link":
                                 text = child["children"][0]["children"][0]["text"]
                                 text_url = child["children"][2]["attributes"][1]["value"]
 
                                 content += f"[{text}]({text_url}) "
 
+                            elif child["name"] == "bold":
+                                    content += "**" + child["children"][0]["text"].strip() + "** "
+
                 elif item["name"] == "list":
-                    for list_item in item["children"]:
-                        content += " - " + list_item["children"][0]["text"].strip() + "\n\n"
+                    for child in item["children"]:
+                        if len(child["children"]) == 1:
+                            if child["name"] == "listItem":
+                                content += " · " + child["children"][0]["text"].strip() + "\n\n"
+                        
+                        else:
+                            for sub_child in child["children"]:
+
+                                content += " · "
+
+                                if sub_child["name"] == "text":
+                                    content += sub_child["text"].strip() + " "
+
+                                elif sub_child["name"] == "link":
+                                    text = sub_child["children"][0]["children"][0]["text"]
+                                    text_url = sub_child["children"][2]["attributes"][1]["value"]
+
+                                    content += f"[{text}]({text_url}) "
+
+                                elif sub_child["name"] == "bold":
+                                    content += "**" + sub_child["children"][0]["text"].strip() + "** "
+
+                            content += "\n\n"
 
                 elif item["name"] == "link":
                     text = item["children"][0]["children"][0]["text"]
@@ -75,8 +105,10 @@ async def get_data() -> Union[dict, None]:
                     content += "*There is a video, but the bot cannot display it. Please click on the link above to view it.*\n\n"
 
                 # TODO: Once the text is over 2000 chars long, replace the last 3 with ...
-                if len(content) > 2000:
-                    pass
+                if len(content) > 4096:
+                    content = content[:4093] + "..."
+                    console.warn("Content is over 4096 chars long. Truncated.")
+                    break
 
             content = content.strip()
 
