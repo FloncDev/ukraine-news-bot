@@ -2,6 +2,7 @@ import asyncio
 import aiohttp
 from console import Console
 from datetime import datetime
+from typing import Union
 
 console = Console(True)
 
@@ -10,7 +11,7 @@ url = "https://push.api.bbci.co.uk/batch?t=%2Fdata%2Fbbc-morph-%7Blx-page-compon
 with open("latest", "r+") as f:
     latest_id = f.read()
 
-async def get_data() -> dict | None:
+async def get_data() -> Union[dict, None]:
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
             data = await resp.json()
@@ -19,7 +20,7 @@ async def get_data() -> dict | None:
             latest = data["payload"][11]["body"]["results"][0]
 
             # for i in data["payload"][11]["body"]["results"]:
-            #     if i["assetId"] == "62197829ec502b53cd47fafa":
+            #     if i["assetId"] == "62197e41980bea49f4b7a024":
             #         latest = i
 
             if latest["assetId"] == latest_id:
@@ -46,7 +47,19 @@ async def get_data() -> dict | None:
             for item in latest["body"]:
 
                 if item["name"] == "paragraph":
-                    content += item["children"][0]["text"] + "\n\n"
+                    if len(item["children"]) == 1:
+                        content += item["children"][0]["text"] + "\n\n"
+
+                    else:
+                        for child in item["children"]:
+                            if child["name"] == "text":
+                                content += child["text"].replace("\n\n", " ")
+
+                            if child["name"] == "link":
+                                text = child["children"][0]["children"][0]["text"]
+                                text_url = child["children"][2]["attributes"][1]["value"]
+
+                                content += f"[{text}]({text_url}) "
 
                 elif item["name"] == "list":
                     for list_item in item["children"]:
