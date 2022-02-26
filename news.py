@@ -8,8 +8,12 @@ console = Console(True)
 
 url = "https://push.api.bbci.co.uk/batch?t=%2Fdata%2Fbbc-morph-lx-commentary-data-paged%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FisUk%2Ffalse%2Flimit%2F20%2FnitroKey%2Flx-nitro%2FpageNumber%2F1%2FserviceName%2Fnews%2Fversion%2F1.5.6?timeout=5"
 
-with open("latest", "r+") as f:
-    latest_id = f.read()
+try:
+    with open("latest", "r") as f:
+        latest_id = f.read()
+
+except FileNotFoundError:
+    latest_id = ""
 
 async def get_data() -> Union[dict, None]:
     console.log("Getting data...")
