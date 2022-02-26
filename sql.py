@@ -9,7 +9,7 @@ def create_connection(db_file):
     """Create a database connection to a SQLite database."""
     conn = None
     try:
-        conn = sqlite3.connect("./Data/"+db_file)
+        conn = sqlite3.connect("./data/"+db_file)
     except Error as e:
         console.error(e)
     finally:
