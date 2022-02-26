@@ -26,7 +26,7 @@ async def get_data() -> Union[dict, None]:
 
             # This is just in case they post a new update while im still working on adding a new datatype
             # for i in data["payload"][0]["body"]["results"]:
-            #     if i["assetId"] == "621a63cb980bea49f4b7a2b6":
+            #     if i["assetId"] == "621a7884980bea49f4b7a320":
             #         latest = i
 
             if latest["assetId"] == latest_id:
@@ -60,7 +60,7 @@ async def get_data() -> Union[dict, None]:
                     if item["name"] == "paragraph":
                         if len(item["children"]) == 1:
                             if item["children"][0]["name"] == "text":
-                                content += item["children"][0]["text"]
+                                content += item["children"][0]["text"].replace("\n", " ")
 
                             elif item["children"][0]["name"] == "link":
                                     text = child["children"][0]["children"][0]["text"]
@@ -119,6 +119,17 @@ async def get_data() -> Union[dict, None]:
 
                     elif item["name"] == "video":
                         content += "*There is a video, but the bot cannot display it. Please click on the link above to view it.*\n\n"
+
+                    elif item["name"] == "quote":
+                        if item["children"][0]["name"] == "quoteText":
+                            content += "\"" + item["children"][0]["children"][0]["text"].replace("\"", "") + "\"\n\n"
+
+                    elif item["name"] == "embed":
+                        try:
+                            if item["children"][0]["children"][0]["text"] == "twitter":
+                                t_url = item["children"][1]["children"][0]["text"]
+                                content += f"[Twitter]({t_url})\n\n"
+                        except: pass
 
                 except:
                     pass
