@@ -16,7 +16,7 @@ class config_class(commands.Cog):
         if ctx.author.guild_permissions.administrator:
             sql.edit_server(ctx.guild.id, channel.id)
             await ctx.respond(f"The news will now be posted to {channel.mention}.", ephemeral=True)
-            console.log(f"{ctx.author.id} changed the news channel to {channel.name} in {ctx.guild.id}.")
+            console.log(f"{ctx.author.id} changed the news channel to {channel.name}({channel.id}) in {ctx.guild.id}.")
 
         else:
             await ctx.respond("You do not have permission to use this command.", ephemeral=True)

@@ -22,7 +22,7 @@ async def get_data() -> Union[dict, None]:
 
             # This is just in case they post a new update while im still working on adding a new datatype
             # for i in data["payload"][0]["body"]["results"]:
-            #     if i["assetId"] == "621a4f7c0ce87e491a0ed2fa":
+            #     if i["assetId"] == "621a63cb980bea49f4b7a2b6":
             #         latest = i
 
             if latest["assetId"] == latest_id:
@@ -52,57 +52,72 @@ async def get_data() -> Union[dict, None]:
             # Right now it loops through every known data type and adds what is needed.
             for item in latest["body"]:
 
-                if item["name"] == "paragraph":
-                    if len(item["children"]) == 1:
-                        content += item["children"][0]["text"] + "\n\n"
+                try:
+                    if item["name"] == "paragraph":
+                        if len(item["children"]) == 1:
+                            if item["children"][0]["name"] == "text":
+                                content += item["children"][0]["text"]
 
-                    else:
-                        for child in item["children"]:
-                            if child["name"] == "text":
-                                content += child["text"].replace("\n\n", " ")
+                            elif item["children"][0]["name"] == "link":
+                                    text = child["children"][0]["children"][0]["text"]
+                                    text_url = child["children"][2]["attributes"][1]["value"]
 
-                            elif child["name"] == "link":
-                                text = child["children"][0]["children"][0]["text"]
-                                text_url = child["children"][2]["attributes"][1]["value"]
+                                    content += f"[{text}]({text_url})"
 
-                                content += f"[{text}]({text_url}) "
+                            elif item["children"][0]["name"] == "bold":
+                                    content += "**" + item["children"][0]["children"][0]["text"].strip() + "**"
 
-                            elif child["name"] == "bold":
-                                    content += "**" + child["children"][0]["text"].strip() + "** "
-
-                elif item["name"] == "list":
-                    for child in item["children"]:
-                        if len(child["children"]) == 1:
-                            if child["name"] == "listItem":
-                                content += " · " + child["children"][0]["text"].strip() + "\n\n"
-                        
                         else:
-                            for sub_child in child["children"]:
+                            for child in item["children"]:
+                                if child["name"] == "text":
+                                    content += child["text"].replace("\n\n", " ")
 
-                                content += " · "
-
-                                if sub_child["name"] == "text":
-                                    content += sub_child["text"].strip() + " "
-
-                                elif sub_child["name"] == "link":
-                                    text = sub_child["children"][0]["children"][0]["text"]
-                                    text_url = sub_child["children"][2]["attributes"][1]["value"]
+                                elif child["name"] == "link":
+                                    text = child["children"][0]["children"][0]["text"]
+                                    text_url = child["children"][2]["attributes"][1]["value"]
 
                                     content += f"[{text}]({text_url}) "
 
-                                elif sub_child["name"] == "bold":
-                                    content += "**" + sub_child["children"][0]["text"].strip() + "** "
+                                elif child["name"] == "bold":
+                                        content += "**" + child["children"][0]["text"].strip() + "** "
+                            
+                        content += "\n\n"
+
+                    elif item["name"] == "list":
+                        for child in item["children"]:
+                            if len(child["children"]) == 1:
+                                if child["name"] == "listItem":
+                                    content += " · " + child["children"][0]["text"].strip()
+                            
+                            else:
+                                content += " · "
+                                for sub_child in child["children"]:
+
+                                    if sub_child["name"] == "text":
+                                        content += sub_child["text"].strip() + " "
+
+                                    elif sub_child["name"] == "link":
+                                        text = sub_child["children"][0]["children"][0]["text"]
+                                        text_url = sub_child["children"][2]["attributes"][1]["value"]
+
+                                        content += f"[{text}]({text_url}) "
+
+                                    elif sub_child["name"] == "bold":
+                                        content += "**" + sub_child["children"][0]["text"].strip() + "** "
 
                             content += "\n\n"
 
-                elif item["name"] == "link":
-                    text = item["children"][0]["children"][0]["text"]
-                    text_url = item["children"][2]["attributes"][1]["value"]
+                    elif item["name"] == "link":
+                        text = item["children"][0]["children"][0]["text"]
+                        text_url = item["children"][2]["attributes"][1]["value"]
 
-                    content += f"[{text}]({text_url})\n\n"
+                        content += f"[{text}]({text_url})\n\n"
 
-                elif item["name"] == "video":
-                    content += "*There is a video, but the bot cannot display it. Please click on the link above to view it.*\n\n"
+                    elif item["name"] == "video":
+                        content += "*There is a video, but the bot cannot display it. Please click on the link above to view it.*\n\n"
+
+                except:
+                    pass
 
                 # TODO: Once the text is over 2000 chars long, replace the last 3 with ...
                 if len(content) > 4096:
