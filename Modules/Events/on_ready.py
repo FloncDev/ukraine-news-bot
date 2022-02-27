@@ -11,7 +11,7 @@ class on_ready(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        console.info(f'{self.client.user.name} is online! Currently in {len(self.client.guilds)} guilds.')
+        console.info(f'{self.client.user.name} is online! Currently in {len(self.client.guilds)} guilds and serving {sum([guild.member_count for guild in self.client.guilds])} users.')
         await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="/config (to configure)"))
 
 def setup(client):
