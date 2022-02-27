@@ -41,7 +41,7 @@ class get_data_class(commands.Cog):
                     
                     except:
                         console.error(f"Could not post news in {guild.name}({guild.id}).")
-                        try: guild.owner.send(f"Could not post news in your server {guild.name}. Make sure the bot can send messages and embeds in that channel. If the issue persists please contact `Flonc#0001`")
+                        try: await guild.owner.send(f"Could not post news in your server {guild.name}. Make sure the bot can send messages and embeds in that channel. If the issue persists please contact `Flonc#0001`")
                         except: pass
 
             console.log(f"Posted data in {posted_in}/{len(self.client.guilds)} servers.")
