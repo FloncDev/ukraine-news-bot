@@ -6,7 +6,7 @@ from typing import Union
 
 console = Console(True)
 
-url = "https://push.api.bbci.co.uk/batch?t=%2Fdata%2Fbbc-morph-lx-commentary-data-paged%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60517447%2FisUk%2Ffalse%2Flimit%2F20%2FnitroKey%2Flx-nitro%2FpageNumber%2F1%2FserviceName%2Fnews%2Fversion%2F1.5.6?timeout=5"
+url = "https://push.api.bbci.co.uk/batch?t=%2Fdata%2Fbbc-morph-lx-commentary-data-paged%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60542877%2FisUk%2Ffalse%2Flimit%2F20%2FnitroKey%2Flx-nitro%2FpageNumber%2F1%2FserviceName%2Fnews%2Fversion%2F1.5.6?timeout=5"
 
 try:
     with open("latest", "r") as f:
@@ -16,7 +16,6 @@ except FileNotFoundError:
     latest_id = ""
 
 async def get_data() -> Union[dict, None]:
-    console.log("Getting data...")
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
             data = await resp.json()
@@ -30,7 +29,6 @@ async def get_data() -> Union[dict, None]:
             #         latest = i
 
             if latest["assetId"] == latest_id:
-                console.log("Latest update has already been posted.")
                 return None
 
             latest_id = latest["assetId"]
@@ -134,7 +132,6 @@ async def get_data() -> Union[dict, None]:
                 except:
                     pass
 
-                # TODO: Once the text is over 2000 chars long, replace the last 3 with ...
                 if len(content) > 4096:
                     content = content[:4093] + "..."
                     console.warn("Content is over 4096 chars long. Truncated.")
@@ -153,7 +150,3 @@ async def get_data() -> Union[dict, None]:
                 "locator": post_locator,
                 "updated": updated
             }
-
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(get_data())
