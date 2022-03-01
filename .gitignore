@@ -2,5 +2,5 @@
 /logs/*
 **/__pycache__
 config.json
-latest
+latest.json
 *.db
