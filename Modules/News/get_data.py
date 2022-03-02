@@ -37,7 +37,8 @@ class get_data_class(commands.Cog):
                     embed.timestamp = datetime.now()
                     
                     try:
-                        await self.client.get_channel(news_channel).send((f"<@&{role_id}>" if role_id else None), embed=embed)
+                        if role_id != guild.default_role.id: await self.client.get_channel(news_channel).send((f"<@&{role_id}>" if role_id else None), embed=embed)
+                        else: await self.client.get_channel(news_channel).send(guild.default_role, embed=embed, allowed_mentions=discord.AllowedMentions(everyone=True)); console.log("heyy bb girl ;)))")
                         posted_in += 1
                     
                     except:

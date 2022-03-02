@@ -23,7 +23,7 @@ class config_class(commands.Cog):
         else:
             await ctx.respond("You do not have permission to use this command.", ephemeral=True)
 
-    @group.command(name="ping_role",description="Set the role to ping when the news is posted.")
+    @group.command(name="ping_roles",description="Set the role to ping when the news is posted.")
     async def ping(self, ctx, role: Option(discord.Role, "The role to ping when the news is posted. To remove ping role, leave blank.") = None):
         if ctx.author.guild_permissions.administrator:
             if role is None:
@@ -32,7 +32,7 @@ class config_class(commands.Cog):
                 console.log(f"{ctx.author.id} removed the ping role from {ctx.guild.id}.")
             else:
                 sql.edit_server(ctx.guild.id, role_id=role.id)
-                await ctx.respond(f"The ping role has been set to {role.mention}.", ephemeral=True)
+                await ctx.respond(f"The ping role has been set to `{role}`.", ephemeral=True)
                 console.log(f"{ctx.author.id} set the ping role to {role.name}({role.id}) in {ctx.guild.id}.")
         
         else:
