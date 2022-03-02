@@ -40,7 +40,7 @@ def remove_server(server_id: int):
     conn = create_connection("servers.db")
     with conn:
         cur = conn.cursor()
-        cur.execute("DELETE FROM servers WHERE id = ?", (server_id,))
+        cur.execute("DELETE FROM servers WHERE id = ?", (str(server_id),))
 
 def edit_server(server_id: int, channel_id: int):
     """Edit a server in the database."""
