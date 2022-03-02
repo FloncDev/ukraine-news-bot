@@ -18,14 +18,24 @@ def create_connection(db_file):
             return conn
 
 def db_check():
-    """Check if the database exists, if not, create it."""
+    """Check if the database exists, if not, create it. Also checks for the servers.db file to see if it needs updating."""
+    conn = create_connection("servers.db")
     if not exists("./data/servers.db"):
-        conn = create_connection("servers.db")
+        
         with conn:
             cur = conn.cursor()
-            cur.execute("CREATE TABLE servers (id BIGINT PRIMARY KEY NOT NULL, news_channel BIGINT)")
-        conn.close()
+            cur.execute("CREATE TABLE servers (id BIGINT PRIMARY KEY NOT NULL, news_channel BIGINT, role_id BIGINT)")
         console.info("Database created.")
+
+    # Check if the role_id column exists, if not, add it.
+    with conn:
+        cur = conn.cursor()
+        try: cur.execute("SELECT role_id FROM servers")
+        except: pass
+        if cur.fetchone() is None:
+            cur.execute("ALTER TABLE servers ADD COLUMN role_id BIGINT")
+            console.info("Added role_id column to servers table.")
+
 
 def add_server(server_id: int):
     """Add a server to the database."""
@@ -33,7 +43,7 @@ def add_server(server_id: int):
     conn = create_connection("servers.db")
     with conn:
         cur = conn.cursor()
-        cur.execute("INSERT INTO servers VALUES (?, ?)", (server_id, None))
+        cur.execute("INSERT INTO servers VALUES (?, ?, ?)", (server_id, None, None))
 
 def remove_server(server_id: int):
     """Remove a server from the database."""
@@ -42,12 +52,15 @@ def remove_server(server_id: int):
         cur = conn.cursor()
         cur.execute("DELETE FROM servers WHERE id = ?", (str(server_id),))
 
-def edit_server(server_id: int, channel_id: int):
+def edit_server(server_id: int, channel_id: int = None, role_id: int = None):
     """Edit a server in the database."""
     conn = create_connection("servers.db")
     with conn:
         cur = conn.cursor()
-        cur.execute("UPDATE servers SET news_channel = ? WHERE id = ?", (channel_id, server_id))
+        if channel_id is not None:
+            cur.execute("UPDATE servers SET news_channel = ? WHERE id = ?", (channel_id, server_id))
+        if role_id is not None:
+            cur.execute("UPDATE servers SET role_id = ? WHERE id = ?", (role_id, server_id))
 
 def is_registered(server_id: int) -> bool:
     """Check if a server is registered."""
@@ -60,15 +73,31 @@ def is_registered(server_id: int) -> bool:
         else:
             return True
 
-def get_id(server_id: int) -> Union[int, None]:
+def get_server_id(server_id: int) -> Union[int, None]:
     """Gets the news channel for a server, if it does not have one, return None."""
     conn = create_connection("servers.db")
     with conn:
         cur = conn.cursor()
         cur.execute("SELECT news_channel FROM servers WHERE id = ?", (server_id,))
-        return cur.fetchone()[0]
+        out = cur.fetchone()
+        if out is None:
+            return None
+        else:
+            return out[0]
 
-def get_guilds() -> list:
+def get_role_id(server_id: int) -> Union[int, None]:
+    """Gets the role_id for a server, if it does not have one, return None."""
+    conn = create_connection("servers.db")
+    with conn:
+        cur = conn.cursor()
+        cur.execute("SELECT role_id FROM servers WHERE id = ?", (server_id,))
+        out = cur.fetchone()
+        if out is None:
+            return None
+        else:
+            return out[0]
+
+def get_guilds() -> list[int]:
     """Get all the guilds in the database."""
     conn = create_connection("servers.db")
     with conn:
