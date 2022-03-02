@@ -23,7 +23,8 @@ class get_data_class(commands.Cog):
         if data:
             posted_in = 0
             for guild in self.client.guilds:
-                news_channel = sql.get_id(guild.id)
+                news_channel = sql.get_server_id(guild.id)
+                role_id = sql.get_role_id(guild.id)
                 if news_channel:
                     embed = discord.Embed(title=data["title"], description=data["content"],
                                             color=(0xeb144c if data["is_breaking"] else 0xffffff))
@@ -36,12 +37,14 @@ class get_data_class(commands.Cog):
                     embed.timestamp = datetime.now()
                     
                     try:
-                        await self.client.get_channel(news_channel).send(embed=embed)
+                        await self.client.get_channel(news_channel).send((f"<@&{role_id}>" if role_id else None), embed=embed)
                         posted_in += 1
                     
                     except:
                         console.error(f"Could not post news in {guild.name}({guild.id}).")
-                        try: await guild.owner.send(f"Could not post news in your server {guild.name}. Make sure the bot can send messages and embeds in that channel. If the issue persists please contact `Flonc#0001`")
+                        try:
+                            await guild.owner.send(f"Could not post news in your server {guild.name}. Make sure the bot can send messages and embeds in that channel. If the issue persists please contact `Flonc#0001`")
+                            console.log(f"Sent an error message to {guild.owner.id}.")
                         except: pass
 
             console.log(f"Posted data in {posted_in}/{len(self.client.guilds)} servers.")
