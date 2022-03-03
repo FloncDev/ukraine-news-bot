@@ -9,7 +9,7 @@ with open("config.json", "r") as f:
     config = json.load(f)
 
 console = Console(True)
-client = commands.Bot(command_prefix=None)
+client = commands.Bot(command_prefix="pyCordmakesMeSetAPrefixEvenThoughIdontNeedOne")
 
 sql.db_check()
 
