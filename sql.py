@@ -97,7 +97,7 @@ def get_role_id(server_id: int) -> Union[int, None]:
         else:
             return out[0]
 
-def get_guilds() -> list[int]:
+def get_guilds() -> list:
     """Get all the guilds in the database."""
     conn = create_connection("servers.db")
     with conn:
