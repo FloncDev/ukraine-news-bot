@@ -43,7 +43,7 @@ class get_data_class(commands.Cog):
                         posted_in += 1
                     
                     except:
-                        guilds.append(guild.id)
+                        guilds.append(str(guild.id))
 
             console.log(f"Posted data in {posted_in}/{len(self.client.guilds)} servers.")
             
