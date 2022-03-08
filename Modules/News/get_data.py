@@ -22,6 +22,7 @@ class get_data_class(commands.Cog):
         data = await news.get_data()
         if data:
             posted_in = 0
+            guilds = []
             for guild in self.client.guilds:
                 news_channel = sql.get_server_id(guild.id)
                 role_id = sql.get_role_id(guild.id)
@@ -42,9 +43,12 @@ class get_data_class(commands.Cog):
                         posted_in += 1
                     
                     except:
-                        console.error(f"Could not post news in {guild.name}({guild.id}).")
+                        guilds.append(guild.id)
 
             console.log(f"Posted data in {posted_in}/{len(self.client.guilds)} servers.")
+            
+            if guilds:
+                console.warn(f"Could not post data in {len(guilds)} servers. [" + ", ".join(guilds) + "]")
 
     @get_data.before_loop
     async def before_data(self):
