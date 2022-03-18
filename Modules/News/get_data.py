@@ -34,7 +34,8 @@ class get_data_class(commands.Cog):
                     embed.set_footer(text="🔴 Live News")
 
                     locator = data["locator"]
-                    embed.url = f"https://www.bbc.co.uk/news/live/world-europe-60685883?pinned_post_locator={locator}"
+                    news_url = data["news_url"]
+                    embed.url = f"https://www.bbc.co.uk/news/live/world-europe-{news_url}?pinned_post_locator={locator}"
                     embed.timestamp = datetime.now()
                     
                     try:

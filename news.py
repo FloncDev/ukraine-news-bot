@@ -19,14 +19,13 @@ except FileNotFoundError as e:
     }
 
 def url() -> str:
-    print(latest_data)
     latest_url = latest_data["news_url"]
     return f"https://push.api.bbci.co.uk/batch?t=%2Fdata%2Fbbc-morph-lx-commentary-data-paged%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-{latest_url}%2FisUk%2Ffalse%2Flimit%2F20%2FnitroKey%2Flx-nitro%2FpageNumber%2F1%2FserviceName%2Fnews%2Fversion%2F1.5.6?timeout=5"
 
 async def get_data() -> Union[dict, None]:
     async with aiohttp.ClientSession() as session:
         async with session.get(url()) as resp:
-            console.log("Fetching data...", url())
+            console.log("Fetching data...")
             data = await resp.json()
             global latest_data
 
@@ -39,6 +38,7 @@ async def get_data() -> Union[dict, None]:
             #         latest = i
 
             if latest["assetId"] == latest_id:
+                console.log("No new data.")
                 return None
 
             latest_data["news_id"] = latest["assetId"]
@@ -179,5 +179,6 @@ async def get_data() -> Union[dict, None]:
                 "is_breaking": is_breaking,
                 "image": image_url,
                 "locator": post_locator,
-                "updated": updated
+                "updated": updated,
+                "news_url": latest_data["news_url"]
             }
