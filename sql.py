@@ -33,8 +33,11 @@ def db_check():
         try: cur.execute("SELECT role_id FROM servers")
         except: pass
         if cur.fetchone() is None:
-            cur.execute("ALTER TABLE servers ADD COLUMN role_id BIGINT")
-            console.info("Added role_id column to servers table.")
+            try:
+                cur.execute("ALTER TABLE servers ADD COLUMN role_id BIGINT")
+                console.info("Added role_id column to servers table.")
+            except sqlite3.OperationalError:
+                console.error("Could not add role_id column to servers table.")
 
 
 def add_server(server_id: int):

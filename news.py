@@ -3,25 +3,34 @@ import aiohttp
 from console import Console
 from datetime import datetime
 from typing import Union
+import json
 
 console = Console(True)
 
-url = "https://push.api.bbci.co.uk/batch?t=%2Fdata%2Fbbc-morph-lx-commentary-data-paged%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-60685883%2FisUk%2Ffalse%2Flimit%2F20%2FnitroKey%2Flx-nitro%2FpageNumber%2F1%2FserviceName%2Fnews%2Fversion%2F1.5.6?timeout=5"
-
 try:
-    with open("latest", "r") as f:
-        latest_id = f.read()
+    with open("latest.json", "r") as f:
+        latest_data = json.load(f)
 
-except FileNotFoundError:
-    latest_id = ""
+except FileNotFoundError as e:
+    console.warn(f"Could not find latest.json. Creating... {e}")
+    latest_data = {
+        "news_id": None,
+        "news_url": "60774819"
+    }
+
+def url() -> str:
+    latest_url = latest_data["news_url"]
+    return f"https://push.api.bbci.co.uk/batch?t=%2Fdata%2Fbbc-morph-lx-commentary-data-paged%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-{latest_url}%2FisUk%2Ffalse%2Flimit%2F20%2FnitroKey%2Flx-nitro%2FpageNumber%2F1%2FserviceName%2Fnews%2Fversion%2F1.5.6?timeout=5"
 
 async def get_data() -> Union[dict, None]:
     async with aiohttp.ClientSession() as session:
-        async with session.get(url) as resp:
+        async with session.get(url()) as resp:
+            console.log("Fetching data...")
             data = await resp.json()
-            global latest_id
+            global latest_data
 
             latest = data["payload"][0]["body"]["results"][0]
+            latest_id = latest_data["news_id"]
 
             # This is just in case they post a new update while im still working on adding a new datatype
             # for i in data["payload"][0]["body"]["results"]:
@@ -29,9 +38,10 @@ async def get_data() -> Union[dict, None]:
             #         latest = i
 
             if latest["assetId"] == latest_id:
+                console.log("No new data.")
                 return None
 
-            latest_id = latest["assetId"]
+            latest_data["news_id"] = latest["assetId"]
 
             title = latest["title"]
             content = "" # Gotten later
@@ -64,6 +74,11 @@ async def get_data() -> Union[dict, None]:
                                     text = child["children"][0]["children"][0]["text"]
                                     text_url = child["children"][2]["attributes"][1]["value"]
 
+                                    if text_url.startswith("https://www.bbc.co.uk/news/live/world-europe-") or text_url.startswith("https://www.bbc.com/news/live/world-europe-"):
+                                        latest_data["news_url"] = text_url.split("-")[-1]
+                                        console.log(f"Changed news url to {latest_data['news_url']}")
+                                        return None
+
                                     content += f"[{text}]({text_url})"
 
                             elif item["children"][0]["name"] == "bold":
@@ -77,6 +92,11 @@ async def get_data() -> Union[dict, None]:
                                 elif child["name"] == "link":
                                     text = child["children"][0]["children"][0]["text"]
                                     text_url = child["children"][2]["attributes"][1]["value"]
+
+                                    if text_url.startswith("https://www.bbc.co.uk/news/live/world-europe-") or text_url.startswith("https://www.bbc.com/news/live/world-europe-"):
+                                        latest_data["news_url"] = text_url.split("-")[-1]
+                                        console.log(f"Changed news url to {latest_data['news_url']}")
+                                        return None
 
                                     content += f"[{text}]({text_url}) "
 
@@ -102,6 +122,11 @@ async def get_data() -> Union[dict, None]:
                                         text = sub_child["children"][0]["children"][0]["text"]
                                         text_url = sub_child["children"][2]["attributes"][1]["value"]
 
+                                        if text_url.startswith("https://www.bbc.co.uk/news/live/world-europe-") or text_url.startswith("https://www.bbc.com/news/live/world-europe-"):
+                                            latest_data["news_url"] = text_url.split("-")[-1]
+                                            console.log(f"Changed news url to {latest_data['news_url']}")
+                                            return None
+
                                         content += f"[{text}]({text_url}) "
 
                                     elif sub_child["name"] == "bold":
@@ -112,6 +137,11 @@ async def get_data() -> Union[dict, None]:
                     elif item["name"] == "link":
                         text = item["children"][0]["children"][0]["text"]
                         text_url = item["children"][2]["attributes"][1]["value"]
+
+                        if text_url.startswith("https://www.bbc.co.uk/news/live/world-europe-") or text_url.startswith("https://www.bbc.com/news/live/world-europe-"):
+                            latest_data["news_url"] = text_url.split("-")[-1]
+                            console.log(f"Changed news url to {latest_data['news_url']}")
+                            return None
 
                         content += f"[{text}]({text_url})\n\n"
 
@@ -137,10 +167,11 @@ async def get_data() -> Union[dict, None]:
                     console.warn("Content is over 4096 chars long. Truncated.")
                     break
 
+            
             content = content.strip()
 
-            with open("latest", "w+") as f:
-                f.write(latest_id)
+            with open("latest.json", "w+") as f:
+                json.dump(latest_data, f, indent=4)
 
             return {
                 "title": title,
@@ -148,5 +179,6 @@ async def get_data() -> Union[dict, None]:
                 "is_breaking": is_breaking,
                 "image": image_url,
                 "locator": post_locator,
-                "updated": updated
+                "updated": updated,
+                "news_url": latest_data["news_url"]
             }
