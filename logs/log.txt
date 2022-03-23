@@ -1,1 +1,0 @@
-Log file so that this directory isn't empty. Log files have the format of "yyyy-mm-dd-log.txt".

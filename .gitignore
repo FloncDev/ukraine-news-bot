@@ -1,5 +1,0 @@
-.vscode/
-/logs/*
-**/__pycache__
-config.json
-*.db
