@@ -49,7 +49,8 @@ class get_data_class(commands.Cog):
             console.log(f"Posted data in {posted_in}/{len(self.client.guilds)} servers.")
             
             if guilds:
-                console.warn(f"Could not post data in {len(guilds)} servers. [" + ", ".join(guilds) + "]")
+                console.warn(f"Could not post data in {len(guilds)} servers.")
+                console.toFile(guilds, "WARN")
 
     @get_data.before_loop
     async def before_data(self):
