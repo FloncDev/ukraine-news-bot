@@ -15,7 +15,7 @@ except FileNotFoundError as e:
     console.warn(f"Could not find latest.json. Creating... {e}")
     latest_data = {
         "news_id": None,
-        "news_url": "60774819"
+        "news_url": "60856533"
     }
 
 def url() -> str:
