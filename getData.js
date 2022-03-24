@@ -1,2 +1,0 @@
-const news = require('./news');
-
