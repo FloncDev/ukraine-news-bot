@@ -47,22 +47,22 @@ class Console:
 
     def info(self, *toLog: Any) -> None:
         grid = self._init_grid()
-        toLog = " ".join(map(str, toLog))
-        grid.add_row(self._get_time(), f"[white on cyan] INFO [/white on cyan] [cyan bold]{toLog}[/cyan bold]")
+        toLogMessage = " ".join(map(str, toLog))
+        grid.add_row(self._get_time(), f"[white on cyan] INFO [/white on cyan] [cyan bold]{toLogMessage}[/cyan bold]")
         rich.print(grid)
         self.toFile(toLog, "INFO")
 
     def warn(self, *toWarn: Any) -> None:
         grid = self._init_grid()
-        toWarn = " ".join(map(str, toWarn))
-        grid.add_row(self._get_time(), f"[white on orange_red1] WARN [/white on orange_red1] [yellow]{toWarn}[/yellow]")
+        toWarnMessage = " ".join(map(str, toWarn))
+        grid.add_row(self._get_time(), f"[white on orange_red1] WARN [/white on orange_red1] [yellow]{toWarnMessage}[/yellow]")
         rich.print(grid)
         self.toFile(toWarn, "WARN")
 
     def error(self, *toError: Any) -> None:
         grid = self._init_grid()
-        toError = " ".join(map(str, toError))
-        grid.add_row(self._get_time(), f"[white on red] ERROR [/white on red] [red bold]{toError}[/red bold]")
+        toErrorMessage = " ".join(map(str, toError))
+        grid.add_row(self._get_time(), f"[white on red] ERROR [/white on red] [red bold]{toErrorMessage}[/red bold]")
         rich.print(grid)
         self.toFile(toError, "ERROR")
 
