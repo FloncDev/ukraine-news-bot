@@ -22,6 +22,16 @@ def url() -> str:
     latest_url = latest_data["news_url"]
     return f"https://push.api.bbci.co.uk/batch?t=%2Fdata%2Fbbc-morph-lx-commentary-data-paged%2FassetUri%2F%252Fnews%252Flive%252Fworld-europe-{latest_url}%2FisUk%2Ffalse%2Flimit%2F20%2FnitroKey%2Flx-nitro%2FpageNumber%2F1%2FserviceName%2Fnews%2Fversion%2F1.5.6?timeout=5"
 
+def check_url(url: str) -> Union[str, None]:
+    if url.startswith("https://www.bbc.co.uk/news/live/world-europe-") or url.startswith("https://www.bbc.com/news/live/world-europe-"):
+        if "pinned_post_asset_id" in url:
+            return None
+        else:
+            return url.split("-")[-1]
+
+    else:
+        return None
+
 async def get_data() -> Union[dict, None]:
     try:
         async with aiohttp.ClientSession() as session:
@@ -79,8 +89,9 @@ async def get_data() -> Union[dict, None]:
                                         text = child["children"][0]["children"][0]["text"]
                                         text_url = child["children"][2]["attributes"][1]["value"]
 
-                                        if text_url.startswith("https://www.bbc.co.uk/news/live/world-europe-") or text_url.startswith("https://www.bbc.com/news/live/world-europe-"):
-                                            latest_data["news_url"] = text_url.split("-")[-1]
+                                        checkurl = check_url(text_url)
+                                        if checkurl:
+                                            latest_data["news_url"] = checkurl
                                             console.log(f"Changed news url to {latest_data['news_url']}")
                                             return None
 
@@ -98,8 +109,9 @@ async def get_data() -> Union[dict, None]:
                                         text = child["children"][0]["children"][0]["text"]
                                         text_url = child["children"][2]["attributes"][1]["value"]
 
-                                        if text_url.startswith("https://www.bbc.co.uk/news/live/world-europe-") or text_url.startswith("https://www.bbc.com/news/live/world-europe-"):
-                                            latest_data["news_url"] = text_url.split("-")[-1]
+                                        checkurl = check_url(text_url)
+                                        if checkurl:
+                                            latest_data["news_url"] = checkurl
                                             console.log(f"Changed news url to {latest_data['news_url']}")
                                             return None
 
@@ -127,10 +139,11 @@ async def get_data() -> Union[dict, None]:
                                             text = sub_child["children"][0]["children"][0]["text"]
                                             text_url = sub_child["children"][2]["attributes"][1]["value"]
 
-                                            if text_url.startswith("https://www.bbc.co.uk/news/live/world-europe-") or text_url.startswith("https://www.bbc.com/news/live/world-europe-"):
-                                                latest_data["news_url"] = text_url.split("-")[-1]
-                                                console.log(f"Changed news url to {latest_data['news_url']}")
-                                                return None
+                                        checkurl = check_url(text_url)
+                                        if checkurl:
+                                            latest_data["news_url"] = checkurl
+                                            console.log(f"Changed news url to {latest_data['news_url']}")
+                                            return None
 
                                             content += f"[{text}]({text_url}) "
 
@@ -143,8 +156,9 @@ async def get_data() -> Union[dict, None]:
                             text = item["children"][0]["children"][0]["text"]
                             text_url = item["children"][2]["attributes"][1]["value"]
 
-                            if text_url.startswith("https://www.bbc.co.uk/news/live/world-europe-") or text_url.startswith("https://www.bbc.com/news/live/world-europe-"):
-                                latest_data["news_url"] = text_url.split("-")[-1]
+                            checkurl = check_url(text_url)
+                            if checkurl:
+                                latest_data["news_url"] = checkurl
                                 console.log(f"Changed news url to {latest_data['news_url']}")
                                 return None
 
