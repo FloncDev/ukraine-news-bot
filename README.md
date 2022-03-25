@@ -6,4 +6,4 @@ Thanks to [@MrBober](https://github.com/MrBober) for the idea and for figuring o
 
 ---
 
-This is a small bot that gets live updates from the [BBC News Feed](https://www.bbc.co.uk/news/live/world-europe-60517447). To use the bot, invite it to your server and run use the /config slash-command to set it up or use the /help command for more information.
+This is a small bot that gets live updates from the [BBC News Feed](https://www.bbc.co.uk/news/live/world-europe-60517447). To use the bot, invite it to your server and run use the ``/config`` slash-command to set it up or use the ``/help`` command for more information.
