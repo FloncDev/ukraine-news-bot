@@ -23,7 +23,7 @@ class config_class(commands.Cog):
         else:
             await ctx.respond("You do not have permission to use this command.", ephemeral=True)
 
-    @group.command(name="ping_roles",description="Set the role to ping when breaking news is posted.")
+    @group.command(name="ping_role",description="Set the role to ping when breaking news is posted.")
     async def ping(self, ctx, role: Option(discord.Role, "The role to ping when breaking news is posted. To remove ping role, leave blank.") = None):
         if ctx.author.guild_permissions.administrator:
             if role is None:

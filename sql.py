@@ -64,6 +64,8 @@ def edit_server(server_id: int, channel_id: int = None, role_id: int = None):
             cur.execute("UPDATE servers SET news_channel = ? WHERE id = ?", (channel_id, server_id))
         if role_id is not None:
             cur.execute("UPDATE servers SET role_id = ? WHERE id = ?", (role_id, server_id))
+        else:
+            cur.execute("UPDATE servers SET role_id = NULL WHERE id = ?", (server_id,))
 
 def is_registered(server_id: int) -> bool:
     """Check if a server is registered."""
