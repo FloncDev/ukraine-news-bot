@@ -5,6 +5,7 @@ import news
 import json
 from datetime import datetime
 import sql
+import random
 
 console = Console(True)
 
@@ -28,7 +29,7 @@ class get_data_class(commands.Cog):
                 role_id = sql.get_role_id(guild.id)
                 if news_channel:
                     embed = discord.Embed(title=data["title"], description=data["content"],
-                                            color=(0xeb144c if data["is_breaking"] else 0xffffff))
+                                            color=(0xeb144c if data["is_breaking"] else random.choice([0x0057b7, 0xffd700])))
                     if data["image"]: embed.set_image(url=data["image"])
                     if data["is_breaking"]: embed.set_author(name="BREAKING")
                     embed.set_footer(text="🔴 Live News")
@@ -39,7 +40,7 @@ class get_data_class(commands.Cog):
                     embed.timestamp = datetime.now()
                     
                     try:
-                        if role_id != guild.default_role.id: await self.client.get_channel(news_channel).send((f"<@&{role_id}>" if role_id else None), embed=embed)
+                        if role_id != guild.default_role.id: await self.client.get_channel(news_channel).send((f"<@&{role_id}>" if role_id and data["is_breaking"] else None), embed=embed)
                         else: await self.client.get_channel(news_channel).send(guild.default_role, embed=embed, allowed_mentions=discord.AllowedMentions(everyone=True));
                         posted_in += 1
                     
