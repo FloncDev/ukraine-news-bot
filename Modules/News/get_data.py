@@ -24,20 +24,24 @@ class get_data_class(commands.Cog):
         if data:
             posted_in = 0
             guilds = []
+
+            #Make our embed
+            embed = discord.Embed(title=data["title"], description=data["content"])
+            if data["image"]: embed.set_image(url=data["image"])
+            if data["is_breaking"]: embed.set_author(name="BREAKING")
+            embed.set_footer(text="🔴 Live News")
+            
+            locator = data["locator"]
+            news_url = data["news_url"]
+            embed.url = f"https://www.bbc.co.uk/news/live/world-europe-{news_url}?pinned_post_locator={locator}"
+            embed.timestamp = datetime.now()
+
             for guild in self.client.guilds:
                 news_channel = sql.get_server_id(guild.id)
                 role_id = sql.get_role_id(guild.id)
                 if news_channel:
-                    embed = discord.Embed(title=data["title"], description=data["content"],
-                                            color=(0xeb144c if data["is_breaking"] else random.choice([0x0057b7, 0xffd700])))
-                    if data["image"]: embed.set_image(url=data["image"])
-                    if data["is_breaking"]: embed.set_author(name="BREAKING")
-                    embed.set_footer(text="🔴 Live News")
-
-                    locator = data["locator"]
-                    news_url = data["news_url"]
-                    embed.url = f"https://www.bbc.co.uk/news/live/world-europe-{news_url}?pinned_post_locator={locator}"
-                    embed.timestamp = datetime.now()
+                    #Still keep random color per server as I like it
+                    embed.color=(0xeb144c if data["is_breaking"] else random.choice([0x0057b7, 0xffd700]))
                     
                     try:
                         if role_id != guild.default_role.id: await self.client.get_channel(news_channel).send((f"<@&{role_id}>" if role_id and data["is_breaking"] else None), embed=embed)
